@@ -6,6 +6,8 @@ using Microsoft.IdentityModel.Tokens;
 using DotNetEnv;
 using database.Models;
 using Microsoft.AspNetCore.Identity;
+using Services;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,9 +16,20 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(Environment.GetEnvironmentVariable("DATABASE_URL"))
 );
 
+
 builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
+
+
+builder.Services.AddControllers(options =>
+{
+    options.RespectBrowserAcceptHeader = true;
+    options.ReturnHttpNotAcceptable = true;
+});
+
+builder.Services.AddScoped<AuthService>();
+
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(x =>
@@ -39,14 +52,27 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("EmployeePolicy", policy => policy.RequireRole("Employee"));
 });
 
-builder.Services.AddControllers();
 
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    await DbInitializer.InitializeAsync(scope);
+}
+
 app.UseHttpsRedirection();
+
 
 app.UseRouting();
 
+
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapControllers();
+
+app.UseMiddleware<ExceptionMiddleware>();
+
+
+app.Run();

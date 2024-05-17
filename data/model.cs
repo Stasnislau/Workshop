@@ -8,12 +8,15 @@ namespace database.Models
 
         public decimal HourlyRate { get; set; } = 10;
 
+        public string RefreshToken { get; set; } = "";
+        public DateTime RefreshTokenExpiryTime { get; set; }
+
         public string TicketId { get; set; } = "";
 
         public Ticket Ticket { get; set; } = null!;
 
         public List<TimeSlot> TimeSlots { get; set; } = new List<TimeSlot>();
-        
+
     }
 
     public class Ticket
@@ -42,7 +45,7 @@ namespace database.Models
 
         public List<Part> Parts { get; set; } = new List<Part>();
 
-        
+
 
     }
 
@@ -63,7 +66,8 @@ namespace database.Models
         public Ticket Ticket { get; set; } = null!;
     }
 
-    public class Part {
+    public class Part
+    {
         public int Id { get; set; }
 
         public string Name { get; set; } = "";
