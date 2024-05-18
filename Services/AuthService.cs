@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using database.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Models;
@@ -43,14 +44,11 @@ namespace Services
 
             if (await _userManager.CheckPasswordAsync(user, model.Password))
             {
-                Console.WriteLine("PROSHLO");
                 var token = GenerateJwtToken(user);
                 var refreshToken = GenerateRefreshToken();
-                Console.WriteLine("PROSHLO GLUBOKO SUKA");
                 user.RefreshToken = refreshToken;
                 user.RefreshTokenExpiryTime = DateTime.Now.ToUniversalTime().AddDays(7);
                 await _userManager.UpdateAsync(user);
-                Console.WriteLine("GLUBOKO SUKA");
                 return new AuthenticatedResponse
                 {
                     Token = token,
@@ -59,6 +57,20 @@ namespace Services
             }
 
             return null;
+        }
+
+        [Authorize]
+        public async Task<bool> LogoutAsync(string username)
+        {
+            var user = await _userManager.FindByNameAsync(username);
+            if (user == null)
+                return false;
+
+            user.RefreshToken = null;
+            user.RefreshTokenExpiryTime = DateTime.Now;
+            await _userManager.UpdateAsync(user);
+
+            return true;
         }
 
         public async Task<AuthenticatedResponse?> RefreshTokenAsync(string token)
@@ -90,6 +102,8 @@ namespace Services
             return await _userManager.FindByNameAsync(username);
         }
 
+
+
         private string GenerateJwtToken(User user)
         {
             var userRoles = _userManager.GetRolesAsync(user).Result;
@@ -117,6 +131,15 @@ namespace Services
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public async Task<bool> ValidateRefreshTokenAsync(string username, string refreshToken)
+        {
+            var user = await _userManager.FindByNameAsync(username);
+            if (user == null)
+                return false;
+
+            return user.RefreshToken == refreshToken && user.RefreshTokenExpiryTime > DateTime.Now;
         }
 
         private string GenerateRefreshToken()
@@ -152,5 +175,6 @@ namespace Services
             return principal;
         }
     }
+
 
 }
