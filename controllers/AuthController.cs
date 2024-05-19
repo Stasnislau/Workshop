@@ -45,7 +45,7 @@ public class AuthController : Controller
             var response = await _authService.LoginAsync(model);
             if (response != null)
             {
-                return Ok(new { response });
+                return Ok(response);
             }
               throw new CustomBadRequest("Invalid credentials");
         }

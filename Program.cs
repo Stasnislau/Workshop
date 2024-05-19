@@ -29,6 +29,7 @@ builder.Services.AddControllers(options =>
 });
 
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<UserService>();
 
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -52,6 +53,15 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("EmployeePolicy", policy => policy.RequireRole("Employee"));
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin", builder => builder
+        .WithOrigins(Environment.GetEnvironmentVariable("CLIENT_URL") ?? throw new InvalidOperationException("No client URL found"))
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials());
+});
+
 
 
 var app = builder.Build();
@@ -69,6 +79,7 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseCors("AllowSpecificOrigin");
 
 app.MapControllers();
 

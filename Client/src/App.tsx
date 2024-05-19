@@ -1,35 +1,91 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom"
+import HighOrderComponent from "./components/hoc"
+import { Context } from "./main"
+import { useContext, JSX, useEffect, useState } from "react"
+import { ErrorPage, LoadingPage, LoginPage, MainPage } from "./pages"
+
+const availableRoutes = [
+  {
+    path: '/',
+    component: MainPage,
+    requiresAuth: true,
+  },
+  {
+    path: '/login',
+    component: LoginPage,
+    requiresAuth: false
+  }
+]
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [authChecking, setAuthChecking] = useState(true);
+  const store = useContext(Context);
+  const [windowSize, setWindowSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
+
+  useEffect(() => {
+    function handleResize() {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    }
+
+    window.addEventListener('resize', handleResize);
+
+    handleResize();
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+
+  useEffect(() => {
+    async function checkAuth() {
+      await store.checkAuth();
+      setAuthChecking(false); // Set auth checking to false once the check is complete
+    }
+    checkAuth();
+  }, [store]);
+
+  const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
+
+    return store.state.isLoggedIn ? children : <Navigate to="/login" />;
+  };
+  if (authChecking) {
+    return (
+      <LoadingPage />
+    )
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <BrowserRouter>
+      <div className="App">
+        <HighOrderComponent>
+          <Routes>
+            {availableRoutes.map(({ path, component: Component, requiresAuth }) =>
+              requiresAuth ? (
+                <Route
+                  key={path}
+                  path={path}
+                  element={
+                    <ProtectedRoute>
+                      <Component />
+                    </ProtectedRoute>
+                  }
+                />
+              ) : (
+                <Route key={path} path={path} element={<Component />} />
+              )
+            )}
+            <Route path="*" element={<ErrorPage />} />
+          </Routes>
+        </HighOrderComponent>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </BrowserRouter>
+  );
+
 }
 
 export default App
