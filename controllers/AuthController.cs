@@ -1,5 +1,8 @@
 using System.Security.Claims;
+using car_workshop_react.Migrations;
 using database.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Models;
@@ -42,12 +45,12 @@ public class AuthController : Controller
     {
         try
         {
-            var response = await _authService.LoginAsync(model);
+            var response = await _authService.LoginAsync(model, HttpContext);
             if (response != null)
             {
                 return Ok(response);
             }
-              throw new CustomBadRequest("Invalid credentials");
+            throw new CustomBadRequest("Invalid credentials");
         }
         catch (Exception)
         {
@@ -55,17 +58,47 @@ public class AuthController : Controller
         }
     }
 
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [HttpPost("refresh")]
-    public async Task<IActionResult> Refresh([FromBody] string refreshToken)
+    public async Task<IActionResult> Refresh()
     {
         try
         {
+            // Console.WriteLine("Refreshing token" + Request.Cookies.Count);
+            // foreach (var cookie in Request.Cookies)
+            // {
+            //     Console.WriteLine(cookie.Key + " " + cookie.Value);
+            // }
+            var refreshToken = Request.Cookies["refreshToken"];
+            if (string.IsNullOrEmpty(refreshToken))
+            {
+                throw new CustomBadRequest("Invalid token");
+            }
             var response = await _authService.RefreshTokenAsync(refreshToken);
             if (response != null)
             {
                 return Ok(response);
             }
             throw new CustomUnauthorized("Invalid token");
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    [Authorize]
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout()
+    {
+        try
+        {
+            var response = await _authService.LogoutAsync(User.Identity?.Name ?? throw new InvalidOperationException("No user found"));
+            if (response)
+            {
+                return Ok();
+            }
+            throw new CustomBadRequest("Unable to logout user");
         }
         catch (Exception)
         {

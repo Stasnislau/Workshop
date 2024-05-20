@@ -36,7 +36,7 @@ namespace Services
             return result;
         }
 
-        public async Task<AuthenticatedResponse?> LoginAsync(LoginModel model)
+        public async Task<AuthenticatedResponse?> LoginAsync(LoginModel model, HttpContext httpContext)
         {
             var user = await _userManager.FindByNameAsync(model.Username);
             if (user == null)
@@ -45,10 +45,17 @@ namespace Services
             if (await _userManager.CheckPasswordAsync(user, model.Password))
             {
                 var token = GenerateJwtToken(user);
-                var refreshToken = GenerateRefreshToken();
+                var refreshToken = GenerateJwtToken(user, true);
                 user.RefreshToken = refreshToken;
                 user.RefreshTokenExpiryTime = DateTime.Now.ToUniversalTime().AddDays(7);
                 await _userManager.UpdateAsync(user);
+                httpContext.Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Strict,
+                    Expires = DateTime.Now.AddDays(7)
+                });
                 return new AuthenticatedResponse
                 {
                     Token = token,
@@ -59,7 +66,6 @@ namespace Services
             return null;
         }
 
-        [Authorize]
         public async Task<bool> LogoutAsync(string username)
         {
             var user = await _userManager.FindByNameAsync(username);
@@ -75,7 +81,7 @@ namespace Services
 
         public async Task<AuthenticatedResponse?> RefreshTokenAsync(string token)
         {
-            var principal = GetPrincipalFromExpiredToken(token);
+            var principal = GetPrincipalFromExpiredToken(token, true);
             var username = principal.Identity.Name;
             var user = await _userManager.FindByNameAsync(username);
 
@@ -83,7 +89,7 @@ namespace Services
                 return null;
 
             var newJwtToken = GenerateJwtToken(user);
-            var newRefreshToken = GenerateRefreshToken();
+            var newRefreshToken = GenerateJwtToken(user, true);
 
             user.RefreshToken = newRefreshToken;
             user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
@@ -104,8 +110,11 @@ namespace Services
 
 
 
-        private string GenerateJwtToken(User user)
+        private string GenerateJwtToken(User user, bool isRefreshToken = false)
         {
+            string secret = isRefreshToken ? Environment.GetEnvironmentVariable("REFRESH_SECRET_KEY") : Environment.GetEnvironmentVariable("SECRET_KEY");
+            if (secret == null)
+                throw new InvalidOperationException("No secret key found");
             var userRoles = _userManager.GetRolesAsync(user).Result;
             if (userRoles.Count == 0)
                 throw new InvalidOperationException("User has no roles");
@@ -117,14 +126,14 @@ namespace Services
             new Claim(ClaimTypes.NameIdentifier, user.Id)
         }.Union(roleClaims);
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("SECRET_KEY") ?? throw new InvalidOperationException("No secret key found")));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
 
             var token = new JwtSecurityToken(
-                issuer: _configuration["Jwt:Issuer"],
-                audience: _configuration["Jwt:Issuer"],
+                issuer: "*",
+                audience: "*",
                 claims: claims,
                 expires: DateTime.Now.AddHours(3),
                 signingCredentials: creds
@@ -142,27 +151,20 @@ namespace Services
             return user.RefreshToken == refreshToken && user.RefreshTokenExpiryTime > DateTime.Now;
         }
 
-        private string GenerateRefreshToken()
+        private ClaimsPrincipal GetPrincipalFromExpiredToken(string token, bool isRefreshToken = false)
         {
-            var randomNumber = new byte[32];
-            using (var rng = RandomNumberGenerator.Create())
-            {
-                rng.GetBytes(randomNumber);
-                return Convert.ToBase64String(randomNumber);
-            }
-        }
-
-        private ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
-        {
+            var secret = isRefreshToken ? Environment.GetEnvironmentVariable("REFRESH_SECRET_KEY") : Environment.GetEnvironmentVariable("SECRET_KEY");
+            if (secret == null)
+                throw new InvalidOperationException("No secret key found");
             var tokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = true,
                 ValidateAudience = true,
                 ValidateLifetime = false,
                 ValidateIssuerSigningKey = true,
-                ValidIssuer = _configuration["Jwt:Issuer"],
-                ValidAudience = _configuration["Jwt:Issuer"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]))
+                ValidIssuer = "*",
+                ValidAudience = "*",
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret))
             };
 
             var tokenHandler = new JwtSecurityTokenHandler();

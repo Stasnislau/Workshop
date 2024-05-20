@@ -44,6 +44,7 @@ export default class Store {
       const data = await response.json();
       if (response.ok && data.token) {
         localStorage.setItem("authToken", data.token);
+        console.log(data.refreshToken, "refreshToken");
         this.isLoggedIn = true;
         return {
           success: true,
@@ -74,7 +75,7 @@ export default class Store {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            "Authorization": `Bearer ${localStorage.getItem("authToken")}`,
           },
           credentials: "include",
         }
@@ -98,12 +99,13 @@ export default class Store {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            "Authorization": `Bearer ${localStorage.getItem("authToken")}`,
           },
           credentials: "include",
         }
       );
       const data = await response.json();
+      console.log(data);
       if (response.ok && data.token) {
         localStorage.setItem("authToken", data.token);
         this.isLoggedIn = true;

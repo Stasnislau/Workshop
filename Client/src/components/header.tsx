@@ -11,6 +11,9 @@ const Header: React.FC = observer(() => {
 
     const handleLogout = async () => {
         await store.logout();
+        if (store.state.isLoggedIn === false) {
+            navigate('/login');
+        }
     };
 
     return (

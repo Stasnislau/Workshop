@@ -44,7 +44,7 @@ function App() {
   useEffect(() => {
     async function checkAuth() {
       await store.checkAuth();
-      setAuthChecking(false); // Set auth checking to false once the check is complete
+      setAuthChecking(false); 
     }
     checkAuth();
   }, [store]);
