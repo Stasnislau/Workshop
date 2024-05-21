@@ -38,6 +38,16 @@ const Header: React.FC = observer(() => {
                                     Logout
                                 </button>
                             </li>
+                            <li>
+                                <button
+                                    onClick={() => {
+                                        navigate('/profile');
+                                    }}
+                                    className="text-white hover:underline"
+                                >
+                                    Profile
+                                </button>
+                            </li>
                         </>
                     ) : (
                         <>
@@ -46,8 +56,15 @@ const Header: React.FC = observer(() => {
                                     Login
                                 </a>
                             </li>
+                            <li>
+                                <a href="/register" className="text-white hover:underline">
+                                    Register
+                                </a>
+                            </li>
+
                         </>
                     )}
+
                 </ul>
             </nav>
         </header>

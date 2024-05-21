@@ -82,13 +82,13 @@ public class AuthController : Controller
         }
     }
 
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [HttpPost("logout")]
     public async Task<IActionResult> Logout()
     {
         try
         {
-            var response = await _authService.LogoutAsync(User.Identity?.Name ?? throw new InvalidOperationException("No user found"));
+            var response = await _authService.LogoutAsync(HttpContext);
             if (response)
             {
                 return Ok();

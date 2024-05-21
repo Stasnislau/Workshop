@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { useContext } from 'react';
 import { Context } from "../../main";
 import { useNavigate } from 'react-router-dom';
+import { observer } from 'mobx-react-lite';
 
-const Login = () => {
+const Login = observer(() => {
 
   const store = useContext(Context);
   const navigate = useNavigate();
@@ -76,6 +77,6 @@ const Login = () => {
       </div>
     </div>
   );
-};
+});
 
 export default Login;

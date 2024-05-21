@@ -66,16 +66,13 @@ namespace Services
             return null;
         }
 
-        public async Task<bool> LogoutAsync(string username)
+        public async Task<bool> LogoutAsync( HttpContext httpContext)
         {
-            var user = await _userManager.FindByNameAsync(username);
-            if (user == null)
-                return false;
-
-            user.RefreshToken = null;
+            var user = await _userManager.GetUserAsync(httpContext.User);
+            user.RefreshToken = "";
+            httpContext.Response.Cookies.Delete("refreshToken");
             user.RefreshTokenExpiryTime = DateTime.UtcNow;
             await _userManager.UpdateAsync(user);
-
             return true;
         }
 
@@ -83,7 +80,6 @@ namespace Services
         {
             var principal = GetPrincipalFromExpiredToken(token, true);
             var username = principal.Identity.Name;
-            Console.WriteLine(username);
             var user = await _userManager.FindByNameAsync(username);
 
             if (user == null || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
