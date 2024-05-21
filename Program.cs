@@ -56,10 +56,11 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("EmployeePolicy", policy => policy.RequireRole("Employee"));
 });
 
-builder.Services.Configure<CookiePolicyOptions>(options =>
+builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.CheckConsentNeeded = context => true;
-    options.MinimumSameSitePolicy = SameSiteMode.None;
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SameSite = SameSiteMode.None;
 });
 
 builder.Services.ConfigureApplicationCookie(options =>

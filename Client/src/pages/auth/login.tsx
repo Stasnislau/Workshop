@@ -9,6 +9,7 @@ const Login = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e:
     React.FormEvent<HTMLFormElement>
@@ -21,7 +22,7 @@ const Login = () => {
     if (response.success) {
       navigate('/');
     } else {
-      console.log(response.message);
+      setError(response.message);
     }
   };
 
@@ -67,6 +68,9 @@ const Login = () => {
             >
               Sign in
             </button>
+          </div>
+          <div className="text-center mt-4">
+            <span className="text-red-500 ">{error}</span>
           </div>
         </form>
       </div>

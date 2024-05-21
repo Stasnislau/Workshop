@@ -102,6 +102,7 @@ export default class Store {
             "Authorization": `Bearer ${localStorage.getItem("authToken")}`,
           },
           credentials: "include",
+
         }
       );
       const data = await response.json();

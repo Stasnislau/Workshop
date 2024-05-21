@@ -64,11 +64,6 @@ public class AuthController : Controller
     {
         try
         {
-            // Console.WriteLine("Refreshing token" + Request.Cookies.Count);
-            // foreach (var cookie in Request.Cookies)
-            // {
-            //     Console.WriteLine(cookie.Key + " " + cookie.Value);
-            // }
             var refreshToken = Request.Cookies["refreshToken"];
             if (string.IsNullOrEmpty(refreshToken))
             {

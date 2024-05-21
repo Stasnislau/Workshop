@@ -53,8 +53,8 @@ namespace Services
                 {
                     HttpOnly = true,
                     Secure = true,
-                    SameSite = SameSiteMode.Strict,
-                    Expires = DateTime.Now.AddDays(7)
+                    SameSite = SameSiteMode.None,
+                    Expires = DateTime.UtcNow.AddDays(7)
                 });
                 return new AuthenticatedResponse
                 {
@@ -73,7 +73,7 @@ namespace Services
                 return false;
 
             user.RefreshToken = null;
-            user.RefreshTokenExpiryTime = DateTime.Now;
+            user.RefreshTokenExpiryTime = DateTime.UtcNow;
             await _userManager.UpdateAsync(user);
 
             return true;
@@ -83,16 +83,17 @@ namespace Services
         {
             var principal = GetPrincipalFromExpiredToken(token, true);
             var username = principal.Identity.Name;
+            Console.WriteLine(username);
             var user = await _userManager.FindByNameAsync(username);
 
-            if (user == null || user.RefreshTokenExpiryTime <= DateTime.Now)
+            if (user == null || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
                 return null;
 
             var newJwtToken = GenerateJwtToken(user);
             var newRefreshToken = GenerateJwtToken(user, true);
 
             user.RefreshToken = newRefreshToken;
-            user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
 
             await _userManager.UpdateAsync(user);
 
@@ -121,8 +122,7 @@ namespace Services
             var roleClaims = userRoles.Select(role => new Claim(ClaimTypes.Role, role)).ToList();
             var claims = new[]
             {
-            new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim(ClaimTypes.Name, user.UserName),
             new Claim(ClaimTypes.NameIdentifier, user.Id)
         }.Union(roleClaims);
 
@@ -135,7 +135,7 @@ namespace Services
                 issuer: "*",
                 audience: "*",
                 claims: claims,
-                expires: DateTime.Now.AddHours(3),
+                expires: DateTime.UtcNow.AddHours(3),
                 signingCredentials: creds
             );
 
@@ -148,7 +148,7 @@ namespace Services
             if (user == null)
                 return false;
 
-            return user.RefreshToken == refreshToken && user.RefreshTokenExpiryTime > DateTime.Now;
+            return user.RefreshToken == refreshToken && user.RefreshTokenExpiryTime > DateTime.UtcNow;
         }
 
         private ClaimsPrincipal GetPrincipalFromExpiredToken(string token, bool isRefreshToken = false)
@@ -173,7 +173,6 @@ namespace Services
 
             if (jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
                 throw new SecurityTokenException("Invalid token");
-
             return principal;
         }
     }
