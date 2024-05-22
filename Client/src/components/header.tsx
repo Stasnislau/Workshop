@@ -34,14 +34,6 @@ const Header: React.FC = observer(() => {
                         <>
                             <li>
                                 <button
-                                    onClick={handleLogout}
-                                    className="text-white hover:underline"
-                                >
-                                    Logout
-                                </button>
-                            </li>
-                            <li>
-                                <button
                                     onClick={() => {
                                         navigate('/profile');
                                     }}
@@ -50,6 +42,15 @@ const Header: React.FC = observer(() => {
                                     Profile
                                 </button>
                             </li>
+                            <li>
+                                <button
+                                    onClick={handleLogout}
+                                    className="text-white hover:underline"
+                                >
+                                    Logout
+                                </button>
+                            </li>
+
                         </>
                     ) : (
                         <>
