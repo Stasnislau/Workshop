@@ -44,7 +44,6 @@ export default class Store {
       const data = await response.json();
       if (response.ok && data.token) {
         localStorage.setItem("authToken", data.token);
-        console.log(data.refreshToken, "refreshToken");
         this.isLoggedIn = true;
         return {
           success: true,

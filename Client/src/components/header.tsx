@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { observer } from 'mobx-react-lite';
 import { Context } from '../main';
 import { useNavigate } from 'react-router-dom';
+import Logo from '../assets/logo.png';
 
 
 
@@ -24,6 +25,7 @@ const Header: React.FC = observer(() => {
                     navigate('/');
                 }}
             >
+                <img src={Logo} alt="logo" className="w-8 h-8 rounded-full" />
                 <h1 className="text-white text-xl">Car Workshop</h1>
             </button>
             <nav>

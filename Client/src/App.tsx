@@ -2,7 +2,7 @@ import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom"
 import HighOrderComponent from "./components/hoc"
 import { Context } from "./main"
 import { useContext, JSX, useEffect, useState } from "react"
-import { ErrorPage, LoadingPage, LoginPage, MainPage } from "./pages"
+import { ErrorPage, LoadingPage, LoginPage, MainPage, RegisterPage, ProfilePage } from "./pages"
 
 const availableRoutes = [
   {
@@ -14,31 +14,22 @@ const availableRoutes = [
     path: '/login',
     component: LoginPage,
     requiresAuth: false
+  },
+  {
+    path: '/register',
+    component: RegisterPage,
+    requiresAuth: false
+  },
+  {
+    path: '/profile',
+    component: ProfilePage,
+    requiresAuth: true
   }
 ]
 
 function App() {
   const [authChecking, setAuthChecking] = useState(true);
   const store = useContext(Context);
-  const [windowSize, setWindowSize] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
-  });
-
-  useEffect(() => {
-    function handleResize() {
-      setWindowSize({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
-    }
-
-    window.addEventListener('resize', handleResize);
-
-    handleResize();
-
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
 
   useEffect(() => {

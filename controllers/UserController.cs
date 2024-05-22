@@ -37,19 +37,6 @@ namespace Controllers
             throw new CustomBadRequest("User not found");
         }
 
-        [HttpPut("update/name")]
-        [Authorize]
-        public async Task<IActionResult> UpdateCurrentUserName([FromBody] UpdateNameModel model)
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var result = await _userService.UpdateUserNameAsync(userId, model.NewName);
-            if (result.Succeeded)
-            {
-                return Ok();
-            }
-            return BadRequest(result.Errors);
-        }
-
         [HttpPut("update/password")]
         [Authorize]
         public async Task<IActionResult> ChangeCurrentUserPassword([FromBody] ChangePasswordModel model)

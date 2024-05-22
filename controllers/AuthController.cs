@@ -30,9 +30,15 @@ public class AuthController : Controller
             var result = await _authService.RegisterAsync(model);
             if (result.Succeeded)
             {
-                return Ok();
+                return Ok(
+                    new
+                    {
+                        Success = true,
+                        Message = "User registered successfully"
+                    }
+                );
             }
-            throw new CustomBadRequest("Invalid credentials");
+            throw new CustomBadRequest("Unable to register user");
         }
         catch (Exception)
         {

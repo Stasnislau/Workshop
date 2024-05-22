@@ -1,25 +1,30 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Models
 {
     public class LoginModel
     {
+        [Required]
         public string Username { get; set; } = "";
+
+        [Required]
         public string Password { get; set; } = "";
     }
 
     public class RegisterModel
-    {
+    {   
+        [Required]
         public string Username { get; set; } = "";
-        public string Password { get; set; } = "";
-    }
 
-    public class UpdateNameModel
-    {
-        public string NewName { get; set; } = "";
+        [Required]
+        public string Password { get; set; } = "";
     }
 
     public class ChangePasswordModel
     {
+        [Required]
         public string CurrentPassword { get; set; } = "";
+        [Required]
         public string NewPassword { get; set; } = "";
     }
 

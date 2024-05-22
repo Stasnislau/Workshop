@@ -26,11 +26,17 @@ namespace Services
         public async Task<IdentityResult> RegisterAsync(RegisterModel model)
         {
             var user = new User { UserName = model.Username };
+            if (await _userManager.FindByNameAsync(model.Username) != null)
+                throw new CustomBadRequest("Username already exists");
             var result = await _userManager.CreateAsync(user, model.Password);
 
             if (result.Succeeded)
             {
                 await _userManager.AddToRoleAsync(user, "Worker");
+            }
+            else if (result.Errors.Any())
+            {
+                throw new CustomBadRequest(result.Errors.First().Description);
             }
 
             return result;
@@ -136,15 +142,6 @@ namespace Services
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
-        }
-
-        public async Task<bool> ValidateRefreshTokenAsync(string username, string refreshToken)
-        {
-            var user = await _userManager.FindByNameAsync(username);
-            if (user == null)
-                return false;
-
-            return user.RefreshToken == refreshToken && user.RefreshTokenExpiryTime > DateTime.UtcNow;
         }
 
         private ClaimsPrincipal GetPrincipalFromExpiredToken(string token, bool isRefreshToken = false)
