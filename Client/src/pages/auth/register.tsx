@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 import { RegisterModel } from '../../types/types';
-import { API_URL } from '../../conts/conts';
+import { API_URL } from '../../constants/consts';
 
 const RegisterPage = observer(() => {
 
