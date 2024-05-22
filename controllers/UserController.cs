@@ -5,11 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Models;
 using Services;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
-
 namespace Controllers
 {
     [Route("api/[controller]")]
@@ -49,7 +45,12 @@ namespace Controllers
             var result = await _userService.ChangePasswordAsync(userId, model.CurrentPassword, model.NewPassword);
             if (result.Succeeded)
             {
-                return Ok();
+                return Ok(
+                    new {
+                        Success = true,
+                        Message = "Password has been changed"
+                    }
+                );
             }
             return BadRequest(result.Errors);
         }

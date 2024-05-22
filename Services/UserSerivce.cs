@@ -1,6 +1,7 @@
 using database.Models;
 using Microsoft.AspNetCore.Identity;
 using Models;
+using Sprache;
 using System.Threading.Tasks;
 
 namespace Services
@@ -33,11 +34,21 @@ namespace Services
         public async Task<IdentityResult> ChangePasswordAsync(string userId, string currentPassword, string newPassword)
         {
             var user = await _userManager.FindByIdAsync(userId);
+
             if (user != null)
             {
-                return await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
+                var result = await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
+                if (result.Succeeded)
+                {
+                    return IdentityResult.Success;
+                }
+                else if (result.Errors.Any())
+                {
+                    throw new CustomBadRequest(result.Errors.First().Description);
+                }
             }
             return IdentityResult.Failed();
+
         }
 
         public async Task<IdentityResult> DeleteUserAsync(string userId)

@@ -2,7 +2,7 @@ import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom"
 import HighOrderComponent from "./components/hoc"
 import { Context } from "./main"
 import { useContext, JSX, useEffect, useState } from "react"
-import { ErrorPage, LoadingPage, LoginPage, MainPage, RegisterPage, ProfilePage } from "./pages"
+import { ErrorPage, LoadingPage, LoginPage, MainPage, RegisterPage, ProfilePage, ChangePasswordPage } from "./pages"
 
 const availableRoutes = [
   {
@@ -24,7 +24,12 @@ const availableRoutes = [
     path: '/profile',
     component: ProfilePage,
     requiresAuth: true
-  }
+  },
+  {
+    path: '/change-password',
+    component: ChangePasswordPage,
+    requiresAuth: true
+  },
 ]
 
 function App() {

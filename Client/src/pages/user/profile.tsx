@@ -31,7 +31,6 @@ const ProfilePage = observer(() => {
                 });
 
                 const data = await response.json();
-                console.log(data);
                 if (response.ok) {
                     setUserInformation({
                         username: data.username,
@@ -49,7 +48,6 @@ const ProfilePage = observer(() => {
     }, []);
 
     const handlePasswordChange = () => {
-        // Navigate to password change page
         navigate('/change-password');
     }
 
