@@ -31,6 +31,8 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
 });
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<TicketService>();
+
 
 builder.Services.AddHttpContextAccessor();
 

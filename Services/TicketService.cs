@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Models;
 using Sprache;
-using System.Threading.Tasks;
 
 namespace Services
 {
@@ -35,6 +34,33 @@ namespace Services
             return await _context.Tickets.ToListAsync();
         }
 
+        public async Task<IdentityResult> CreateTicketAsync(TicketModel ticketModel, string userId)
+        {
+            if (userId == null)
+            {
+                throw new CustomBadRequest("User not found");
+            }
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                throw new CustomBadRequest("User not found");
+            }
+            if (ticketModel.Brand == "" || ticketModel.Model == "" || ticketModel.RegistrationId == "" || ticketModel.Description == "")
+            {
+                throw new CustomBadRequest("Missing required fields");
+            }
+            var ticket = new Ticket
+            {
+                Brand = ticketModel.Brand,
+                Model = ticketModel.Model,
+                RegistrationId = ticketModel.RegistrationId,
+                Description = ticketModel.Description,
+                UserId = userId
+            };
+            _context.Tickets.Add(ticket);
+            return await _context.SaveChangesAsync() > 0 ? IdentityResult.Success : IdentityResult.Failed();
+        }
+
         public async Task<IdentityResult> UpdateTicketAsync(int ticketId, Ticket newTicket)
         {
             var ticket = await _context.Tickets.FirstOrDefaultAsync(t => t.Id == ticketId);
@@ -58,6 +84,6 @@ namespace Services
             }
             return IdentityResult.Failed();
         }
-        
+
     }
 }

@@ -9,3 +9,28 @@ export interface TimeSlot {
     endTime: string;
     ticketId: number;
 }
+
+export interface Ticket {
+    id: number;
+    brand: string;
+    model: string;
+    registrationId: string;
+    description: string;
+    estimatedCost: number;
+    status: string;
+    timeSlots: TimeSlot[];
+}
+
+export interface User {
+    id: number;
+    username: string;
+    password: string;
+    tickets: Ticket[];
+}
+
+export interface TicketModel {
+    brand: string;
+    model: string;
+    registrationId: string;
+    description: string;
+}

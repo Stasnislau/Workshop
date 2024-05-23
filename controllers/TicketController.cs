@@ -35,8 +35,7 @@ namespace Controllers
 
         }
 
-
-        [HttpGet("user/all")]
+        [HttpGet("all")]
         public async Task<IActionResult> GetAllTicketsForUser()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -48,6 +47,24 @@ namespace Controllers
             }
             tickets = await _ticketService.GetTicketsByUserIdAsync(userId);
             return Ok(tickets);
+        }
+
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateTicket([FromBody] TicketModel ticket)
+        {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _ticketService.CreateTicketAsync(ticket, userId);
+            if (result.Succeeded)
+            {
+                return Ok(
+                    new
+                    {
+                        Success = true,
+                        Message = "Ticket has been created"
+                    }
+                );
+            }
+            return BadRequest(result.Errors);
         }
 
         [HttpDelete("specific/{id}")]
