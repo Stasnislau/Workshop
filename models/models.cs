@@ -30,9 +30,6 @@ namespace Models
         public string RegistrationId { get; set; } = "";
         [Required]
         public string Description { get; set; } = "";
-
-        [Required]
-        public string UserId { get; set; } = "";
     }
 
     public class ChangePasswordModel

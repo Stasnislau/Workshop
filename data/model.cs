@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 
 namespace database.Models
@@ -11,9 +12,7 @@ namespace database.Models
         public string RefreshToken { get; set; } = "";
         public DateTime RefreshTokenExpiryTime { get; set; }
 
-        public string TicketId { get; set; } = "";
-
-        public Ticket Ticket { get; set; } = null!;
+        public List<Ticket> Tickets { get; set; } = new List<Ticket>();
 
         public List<TimeSlot> TimeSlots { get; set; } = new List<TimeSlot>();
 
@@ -39,9 +38,8 @@ namespace database.Models
 
         public User User { get; set; } = null!;
 
-        public int TimeSlotId { get; set; }
 
-        public TimeSlot TimeSlot { get; set; } = null!;
+        public List<TimeSlot> TimeSlots { get; set; } = null!;
 
         public List<Part> Parts { get; set; } = new List<Part>();
 

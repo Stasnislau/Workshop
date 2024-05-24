@@ -21,7 +21,7 @@ namespace Services
 
         public async Task<Ticket?> GetTicketByIdAsync(int ticketId)
         {
-            return await _context.Tickets.Where(t => t.Id == ticketId).Include(t => t.Parts).Include(t => t.TimeSlot).FirstOrDefaultAsync();
+            return await _context.Tickets.Where(t => t.Id == ticketId).Include(t => t.Parts).Include(t => t.TimeSlots).FirstOrDefaultAsync();
         }
 
         public async Task<List<Ticket>> GetTicketsByUserIdAsync(string userId)
@@ -36,6 +36,7 @@ namespace Services
 
         public async Task<IdentityResult> CreateTicketAsync(TicketModel ticketModel, string userId)
         {
+            Console.WriteLine("Creating ticket");
             if (userId == null)
             {
                 throw new CustomBadRequest("User not found");
@@ -80,6 +81,10 @@ namespace Services
             if (ticket != null)
             {
                 _context.Tickets.Remove(ticket);
+                if (ticket.Parts != null && ticket.Parts.Count > 0)
+                    _context.Parts.RemoveRange(ticket.Parts);
+                if (ticket.TimeSlots != null && ticket.TimeSlots.Count > 0)
+                    _context.TimeSlots.RemoveRange(ticket.TimeSlots);
                 return await _context.SaveChangesAsync() > 0 ? IdentityResult.Success : IdentityResult.Failed();
             }
             return IdentityResult.Failed();

@@ -52,6 +52,7 @@ namespace Controllers
         [HttpPost("create")]
         public async Task<IActionResult> CreateTicket([FromBody] TicketModel ticket)
         {
+            Console.WriteLine("Creating ticket");
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var result = await _ticketService.CreateTicketAsync(ticket, userId);
             if (result.Succeeded)
@@ -67,13 +68,16 @@ namespace Controllers
             return BadRequest(result.Errors);
         }
 
-        [HttpDelete("specific/{id}")]
+        [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteTicket(int id)
         {
             var result = await _ticketService.DeleteTicketAsync(id);
             if (result.Succeeded)
             {
-                return Ok();
+                return Ok(new {
+                    Success = true,
+                    Message = "Ticket has been deleted"
+                });
             }
             return BadRequest(result.Errors);
         }

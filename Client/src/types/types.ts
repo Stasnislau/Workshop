@@ -16,7 +16,7 @@ export interface Ticket {
     model: string;
     registrationId: string;
     description: string;
-    estimatedCost: number;
+    totalPrice: number;
     status: string;
     timeSlots: TimeSlot[];
 }

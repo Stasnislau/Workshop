@@ -16,6 +16,7 @@ const CreateTicketModal: React.FC<CreateTicketModalProps> = ({ open, onCreate, o
     const [error, setError] = useState('');
     const handleCancel = () => {
         setTicket({ brand: '', model: '', registrationId: '', description: '' });
+        setError('');
         onCancel();
     }
     useClickOutside(modelRef, handleCancel);
@@ -28,6 +29,7 @@ const CreateTicketModal: React.FC<CreateTicketModalProps> = ({ open, onCreate, o
         }
         onCreate(ticket, setError);
         setTicket({ brand: '', model: '', registrationId: '', description: '' });
+        setError('');
     };
 
     if (!open) return null;
@@ -42,7 +44,7 @@ const CreateTicketModal: React.FC<CreateTicketModalProps> = ({ open, onCreate, o
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.3, ease: 'easeInOut' }}
                 >
-                    <div ref={modelRef} className="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full">
+                    <div ref={modelRef} className="bg-white rounded-lg py-2 overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full">
                         <div className="bg-white px-6 pt-5 pb-4 sm:p-6 sm:pb-4">
                             <div className="sm:flex sm:items-start">
                                 <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
@@ -83,6 +85,7 @@ const CreateTicketModal: React.FC<CreateTicketModalProps> = ({ open, onCreate, o
                                 </div>
                             </div>
                         </div>
+
                         <div className="bg-white px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                             <button
                                 className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-500 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
@@ -96,10 +99,9 @@ const CreateTicketModal: React.FC<CreateTicketModalProps> = ({ open, onCreate, o
                             >
                                 Cancel
                             </button>
-                            
-                        </div>
-                        <div className="bg-red-100 text-red-600 text-center p-2">{error}</div>
+                            {error && <p className="text-red-500 text-center sm:pr-4 pt-2">{error}</p>}
 
+                        </div>
                     </div>
 
                 </motion.div>
