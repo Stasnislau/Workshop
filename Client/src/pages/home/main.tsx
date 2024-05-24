@@ -3,9 +3,9 @@ import { observer } from 'mobx-react-lite';
 import { Context } from '../../main';
 import { useNavigate } from 'react-router-dom';
 import { API_URL } from '../../constants/consts';
-import CreateTicketModal from '../../components/models/createTicket';
+import CreateTicketModal from '../../components/modals/createTicket';
 import { Ticket, TicketModel } from '../../types/types';
-import ConfirmModal from '../../components/models/confirmModal';
+import ConfirmModal from '../../components/modals/confirmModal';
 
 const Main = observer(() => {
   const store = useContext(Context);
@@ -132,7 +132,9 @@ const Main = observer(() => {
                       <td className="border px-4 py-2">{ticket.totalPrice}</td>
                       <td className="border px-4 py-2">{ticket.status}</td>
                       <td className="border px-4 py-2 flex space-x-2 justify-between">
-                        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded transition duration-300">
+                        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded transition duration-300"
+                          onClick={() => navigate(`/ticket/${ticket.id}`)}
+                        >
                           View
                         </button>
                         <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-3 rounded transition duration-300"

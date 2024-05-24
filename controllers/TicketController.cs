@@ -23,63 +23,93 @@ namespace Controllers
             _userManager = userManager;
         }
 
-        [HttpGet("specific/:id")]
+        [HttpGet("specific/{id}")]
         public async Task<IActionResult> GetSpecificTicket(int id)
         {
-            var ticket = await _ticketService.GetTicketByIdAsync(id);
-            if (ticket != null)
+            try
             {
-                return Ok(ticket);
+                var ticket = await _ticketService.GetTicketByIdAsync(id);
+                if (ticket != null)
+                {
+                    return Ok(ticket);
+                }
+                return NotFound();
             }
-            return NotFound();
+            catch (Exception)
+            {
+                throw;
+            }
 
         }
 
         [HttpGet("all")]
         public async Task<IActionResult> GetAllTicketsForUser()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var tickets = new List<Ticket>();
-            if (User.IsInRole("Admin"))
+            try
             {
-                tickets = await _ticketService.GetAllTicketsAsync();
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var tickets = new List<Ticket>();
+                if (User.IsInRole("Admin"))
+                {
+                    tickets = await _ticketService.GetAllTicketsAsync();
+                    return Ok(tickets);
+                }
+                tickets = await _ticketService.GetTicketsByUserIdAsync(userId);
                 return Ok(tickets);
             }
-            tickets = await _ticketService.GetTicketsByUserIdAsync(userId);
-            return Ok(tickets);
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         [HttpPost("create")]
         public async Task<IActionResult> CreateTicket([FromBody] TicketModel ticket)
         {
-            Console.WriteLine("Creating ticket");
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var result = await _ticketService.CreateTicketAsync(ticket, userId);
-            if (result.Succeeded)
+            try
             {
-                return Ok(
-                    new
-                    {
-                        Success = true,
-                        Message = "Ticket has been created"
-                    }
-                );
+                Console.WriteLine("Creating ticket");
+                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var result = await _ticketService.CreateTicketAsync(ticket, userId);
+                if (result.Succeeded)
+                {
+                    return Ok(
+                        new
+                        {
+                            Success = true,
+                            Message = "Ticket has been created"
+                        }
+                    );
+                }
+                return BadRequest(result.Errors);
+
             }
-            return BadRequest(result.Errors);
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteTicket(int id)
         {
-            var result = await _ticketService.DeleteTicketAsync(id);
-            if (result.Succeeded)
+            try
             {
-                return Ok(new {
-                    Success = true,
-                    Message = "Ticket has been deleted"
-                });
+                var result = await _ticketService.DeleteTicketAsync(id);
+                if (result.Succeeded)
+                {
+                    return Ok(new
+                    {
+                        Success = true,
+                        Message = "Ticket has been deleted"
+                    });
+                }
+                return BadRequest(result.Errors);
             }
-            return BadRequest(result.Errors);
+            catch (Exception)
+            {
+                throw;
+            }
         }
     }
 }

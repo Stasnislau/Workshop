@@ -23,14 +23,29 @@ namespace database
 
 
             builder.Entity<User>()
-                .HasMany(u => u.Tickets)
-                .WithOne(t => t.User)
-                .HasForeignKey(t => t.UserId);
+                .HasMany(u => u.Tickets);
+
+            builder.Entity<User>()
+                .HasMany(u => u.TimeSlots);
 
             builder.Entity<Ticket>()
                 .HasMany(t => t.TimeSlots)
                 .WithOne(ts => ts.Ticket)
                 .HasForeignKey(ts => ts.TicketId);
+
+            builder.Entity<Ticket>()
+                .HasMany(t => t.Users)
+                .WithMany(u => u.Tickets);
+
+            builder.Entity<Ticket>()
+                .HasMany(t => t.Parts)
+                .WithOne(p => p.Ticket)
+                .HasForeignKey(p => p.TicketId);
+
+            builder.Entity<TimeSlot>()
+                .HasKey(ts => ts.Id);
+
+            
 
             builder.Entity<TimeSlot>()
                 .HasOne(ts => ts.User)

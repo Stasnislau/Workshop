@@ -34,9 +34,8 @@ namespace database.Models
         public string Status { get; set; } = "Created";
 
 
-        public string UserId { get; set; } = "";
 
-        public User User { get; set; } = null!;
+        public List<User> Users { get; set; } = new List<User>();
 
 
         public List<TimeSlot> TimeSlots { get; set; } = null!;

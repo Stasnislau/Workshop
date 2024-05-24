@@ -2,35 +2,8 @@ import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom"
 import HighOrderComponent from "./components/hoc"
 import { Context } from "./main"
 import { useContext, JSX, useEffect, useState } from "react"
-import { ErrorPage, LoadingPage, LoginPage, MainPage, RegisterPage, ProfilePage, ChangePasswordPage } from "./pages"
-
-const availableRoutes = [
-  {
-    path: '/',
-    component: MainPage,
-    requiresAuth: true,
-  },
-  {
-    path: '/login',
-    component: LoginPage,
-    requiresAuth: false
-  },
-  {
-    path: '/register',
-    component: RegisterPage,
-    requiresAuth: false
-  },
-  {
-    path: '/profile',
-    component: ProfilePage,
-    requiresAuth: true
-  },
-  {
-    path: '/change-password',
-    component: ChangePasswordPage,
-    requiresAuth: true
-  },
-]
+import { availableRoutes } from "./constants/routes"
+import { ErrorPage, LoadingPage } from "./pages"
 
 function App() {
   const [authChecking, setAuthChecking] = useState(true);

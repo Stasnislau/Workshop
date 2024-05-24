@@ -5,6 +5,7 @@ import LoadingPage from "./loadingPage"
 import RegisterPage from "./auth/register"
 import ProfilePage from "./user/profile"
 import ChangePasswordPage from "./user/changePassword";
+import TicketPage from "./ticket/ticket";
 
 export {
     MainPage,
@@ -13,5 +14,6 @@ export {
     LoadingPage,
     RegisterPage,
     ProfilePage,
-    ChangePasswordPage
+    ChangePasswordPage,
+    TicketPage
 }

@@ -26,7 +26,8 @@ namespace Services
 
         public async Task<List<Ticket>> GetTicketsByUserIdAsync(string userId)
         {
-            return await _context.Tickets.Where(t => t.UserId == userId).ToListAsync();
+            return await _context.Tickets.Where(t => t.Users.Any(u => u.Id == userId)).Include(t => t.Parts).Include(t => t.TimeSlots.Where(ts => ts.UserId == userId)
+            ).ToListAsync();
         }
 
         public async Task<List<Ticket>> GetAllTicketsAsync()
@@ -36,7 +37,6 @@ namespace Services
 
         public async Task<IdentityResult> CreateTicketAsync(TicketModel ticketModel, string userId)
         {
-            Console.WriteLine("Creating ticket");
             if (userId == null)
             {
                 throw new CustomBadRequest("User not found");
@@ -56,7 +56,6 @@ namespace Services
                 Model = ticketModel.Model,
                 RegistrationId = ticketModel.RegistrationId,
                 Description = ticketModel.Description,
-                UserId = userId
             };
             _context.Tickets.Add(ticket);
             return await _context.SaveChangesAsync() > 0 ? IdentityResult.Success : IdentityResult.Failed();
@@ -68,9 +67,10 @@ namespace Services
             if (ticket != null)
             {
                 ticket.Description = newTicket.Description;
+                ticket.Model = newTicket.Model;
+                ticket.Brand = newTicket.Brand;
+                ticket.RegistrationId = newTicket.RegistrationId;
                 ticket.Status = newTicket.Status;
-                ticket.UserId = newTicket.UserId;
-                return await _userManager.UpdateAsync(ticket.User);
             }
             return IdentityResult.Failed();
         }
@@ -90,5 +90,28 @@ namespace Services
             return IdentityResult.Failed();
         }
 
+        public async Task<bool> RecalculateTotalPrice(int ticketId)
+        {
+            var ticket = await _context.Tickets.FirstOrDefaultAsync(t => t.Id == ticketId);
+            if (ticket != null)
+            {
+                ticket.TotalPrice = 0;
+                foreach (var part in ticket.Parts)
+                {
+                    ticket.TotalPrice += part.TotalPrice;
+                }
+                foreach (var timeSlot in ticket.TimeSlots)
+                {
+                    var employee = await _userManager.FindByIdAsync(timeSlot.UserId);
+                    if (employee != null)
+                    {
+                        ticket.TotalPrice += employee.HourlyRate * (timeSlot.EndTime - timeSlot.StartTime).Hours;
+                    }
+                }
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            return false;
+        }
     }
 }

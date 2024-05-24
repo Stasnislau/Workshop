@@ -63,7 +63,8 @@ namespace Services
 
         public async Task<IList<User>> GetAllEmployeesAsync()
         {
-            return await _userManager.GetUsersInRoleAsync("Worker");
+            var employees = await _userManager.GetUsersInRoleAsync("Worker");
+            return employees;
         }
     }
 }
