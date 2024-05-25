@@ -38,14 +38,12 @@ namespace database
                 .WithMany(u => u.Tickets);
 
             builder.Entity<Ticket>()
-                .HasMany(t => t.Parts)
-                .WithOne(p => p.Ticket)
-                .HasForeignKey(p => p.TicketId);
+                .HasMany(t => t.Parts);
 
             builder.Entity<TimeSlot>()
                 .HasKey(ts => ts.Id);
 
-            
+
 
             builder.Entity<TimeSlot>()
                 .HasOne(ts => ts.User)
@@ -53,9 +51,7 @@ namespace database
                 .HasForeignKey(ts => ts.UserId);
 
             builder.Entity<Part>()
-                .HasOne(p => p.Ticket)
-                .WithMany(t => t.Parts)
-                .HasForeignKey(p => p.TicketId);
+                .HasKey(p => p.Id);
 
         }
     }

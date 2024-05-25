@@ -21,7 +21,13 @@ namespace Services
 
         public async Task<Ticket?> GetTicketByIdAsync(int ticketId)
         {
-            return await _context.Tickets.Where(t => t.Id == ticketId).Include(t => t.Parts).Include(t => t.TimeSlots).FirstOrDefaultAsync();
+            var ticket = await _context.Tickets.Where(t => t.Id == ticketId).FirstOrDefaultAsync();
+            if (ticket != null)
+            {
+                ticket.Parts = await _context.Parts.Where(p => p.TicketId == ticketId).ToListAsync();
+                ticket.TimeSlots = await _context.TimeSlots.Where(ts => ts.TicketId == ticketId).ToListAsync();
+            }
+            return ticket;
         }
 
         public async Task<List<Ticket>> GetTicketsByUserIdAsync(string userId)
@@ -71,7 +77,11 @@ namespace Services
                 ticket.Brand = newTicket.Brand;
                 ticket.RegistrationId = newTicket.RegistrationId;
                 ticket.Status = newTicket.Status;
+
+                return await _context.SaveChangesAsync() > 0 ? IdentityResult.Success : IdentityResult.Failed();
+
             }
+
             return IdentityResult.Failed();
         }
 
@@ -100,12 +110,15 @@ namespace Services
                 {
                     ticket.TotalPrice += part.TotalPrice;
                 }
-                foreach (var timeSlot in ticket.TimeSlots)
+                if (ticket.TimeSlots != null && ticket.TimeSlots.Count > 0)
                 {
-                    var employee = await _userManager.FindByIdAsync(timeSlot.UserId);
-                    if (employee != null)
+                    foreach (var timeSlot in ticket.TimeSlots)
                     {
-                        ticket.TotalPrice += employee.HourlyRate * (timeSlot.EndTime - timeSlot.StartTime).Hours;
+                        var employee = await _userManager.FindByIdAsync(timeSlot.UserId);
+                        if (employee != null)
+                        {
+                            ticket.TotalPrice += employee.HourlyRate * (timeSlot.EndTime - timeSlot.StartTime).Hours;
+                        }
                     }
                 }
                 await _context.SaveChangesAsync();

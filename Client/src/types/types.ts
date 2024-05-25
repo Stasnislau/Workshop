@@ -26,6 +26,7 @@ export interface Part {
   name: string;
   price: number;
   quantity: number;
+  totalPrice: number;
   ticketId: number;
 }
 

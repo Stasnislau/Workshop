@@ -46,7 +46,12 @@ namespace Services
                 TicketId = ticketId,
             };
             _context.Parts.Add(part);
-            return await _context.SaveChangesAsync() > 0 ? IdentityResult.Success : IdentityResult.Failed();
+            bool Succeeded = await _context.SaveChangesAsync() > 0;
+            if (Succeeded)
+            {
+                return await _ticketService.RecalculateTotalPrice(ticketId) ? IdentityResult.Success : IdentityResult.Failed();
+            }
+            return IdentityResult.Failed();
         }
 
         public async Task<IdentityResult> UpdatePartAsync(PartModel partModel, int partId)
@@ -58,7 +63,11 @@ namespace Services
                 part.Price = partModel.Price;
                 part.Quantity = partModel.Quantity;
                 part.TotalPrice = partModel.Price * partModel.Quantity;
-                return await _context.SaveChangesAsync() > 0 ? IdentityResult.Success : IdentityResult.Failed();
+                bool Succeeded = await _context.SaveChangesAsync() > 0; // TODO: КАКАЯ ТО ХУЙНЯ С РЕКАЛЬКУЛЯЦИЕЙ ЦЕНЫ, ГОВОРИТ ЧТО UNDEFINED REFERENCE
+                if (Succeeded)
+                {
+                    return await _ticketService.RecalculateTotalPrice(part.TicketId) ? IdentityResult.Success : IdentityResult.Failed();
+                }
             }
             return IdentityResult.Failed();
         }
@@ -66,10 +75,17 @@ namespace Services
         public async Task<IdentityResult> DeletePartAsync(int partId)
         {
             var part = await _context.Parts.Where(p => p.Id == partId).FirstOrDefaultAsync();
+            int ticketId = part.TicketId;
             if (part != null)
             {
                 _context.Parts.Remove(part);
-                return await _context.SaveChangesAsync() > 0 ? IdentityResult.Success : IdentityResult.Failed();
+
+                bool Succeeded = await _context.SaveChangesAsync() > 0;
+
+                if (Succeeded)
+                {
+                    return await _ticketService.RecalculateTotalPrice(ticketId) ? IdentityResult.Success : IdentityResult.Failed();
+                }
             }
             return IdentityResult.Failed();
         }
