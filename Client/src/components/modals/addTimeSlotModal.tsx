@@ -7,33 +7,32 @@ interface AddTimeSlotModalProps {
     open: boolean;
     onClose: () => void;
     ticketId: string;
+    callback?: () => void;
 }
 
-const AddTimeSlotModal: React.FC<AddTimeSlotModalProps> = ({ open, onClose, ticketId }) => {
+const AddTimeSlotModal: React.FC<AddTimeSlotModalProps> = ({ open, onClose, ticketId, callback }) => {
     const modalRef = useRef<HTMLDivElement>(null);
-    const [timeslot, setTimeslot] = useState({ start: '', end: '' });
+    const [timeslot, setTimeslot] = useState({ startDate: '', endDate: '', startHour: '', endHour: '' });
     const [error, setError] = useState('');
 
     useClickOutside(modalRef, onClose);
 
     const handleAddTimeslot = async () => {
-        if (!timeslot.start || !timeslot.end) {
+        if (!timeslot.startDate || !timeslot.endDate || !timeslot.startHour || !timeslot.endHour) {
             setError('Please fill all the fields');
             return;
         }
 
-        const startTime = new Date(timeslot.start);
-        const endTime = new Date(timeslot.end);
+        const startTime = new Date(timeslot.startDate);
+        startTime.setHours(parseInt(timeslot.startHour), 0, 0, 0);
+        const endTime = new Date(timeslot.endDate);
+        endTime.setHours(parseInt(timeslot.endHour), 0, 0, 0);
         const now = new Date();
 
         if (startTime <= now || endTime <= now || startTime >= endTime) {
             setError('Invalid times: times must be in the future and end time must be after start time');
             return;
         }
-
-        // Ensure minutes and seconds are set to 0
-        startTime.setMinutes(0, 0, 0);
-        endTime.setMinutes(0, 0, 0);
 
         try {
             const response = await fetch(`${API_URL}/timeslot`, {
@@ -74,19 +73,39 @@ const AddTimeSlotModal: React.FC<AddTimeSlotModalProps> = ({ open, onClose, tick
                             <div className="mt-2">
                                 <input
                                     className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    type="datetime-local"
+                                    type="date"
                                     required
-                                    placeholder="Start Time"
-                                    value={timeslot.start}
-                                    onChange={(e) => setTimeslot({ ...timeslot, start: e.target.value })}
+                                    placeholder="Start Date"
+                                    value={timeslot.startDate}
+                                    onChange={(e) => setTimeslot({ ...timeslot, startDate: e.target.value })}
                                 />
                                 <input
                                     className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    type="datetime-local"
+                                    type="number"
+                                    min="0"
+                                    max="23"
                                     required
-                                    placeholder="End Time"
-                                    value={timeslot.end}
-                                    onChange={(e) => setTimeslot({ ...timeslot, end: e.target.value })}
+                                    placeholder="Start Hour"
+                                    value={timeslot.startHour}
+                                    onChange={(e) => setTimeslot({ ...timeslot, startHour: e.target.value })}
+                                />
+                                <input
+                                    className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    type="date"
+                                    required
+                                    placeholder="End Date"
+                                    value={timeslot.endDate}
+                                    onChange={(e) => setTimeslot({ ...timeslot, endDate: e.target.value })}
+                                />
+                                <input
+                                    className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    type="number"
+                                    min="0"
+                                    max="23"
+                                    required
+                                    placeholder="End Hour"
+                                    value={timeslot.endHour}
+                                    onChange={(e) => setTimeslot({ ...timeslot, endHour: e.target.value })}
                                 />
                             </div>
                             {error && <p className="text-red-500 text-center pt-2">{error}</p>}

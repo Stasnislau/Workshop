@@ -17,6 +17,8 @@ const TicketPage: React.FC = observer(() => {
     const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
     const [isTimeSlotModalOpen, setIsTimeSlotModalOpen] = useState(false);
     const [isPartModalOpen, setIsPartModalOpen] = useState(false);
+    const [isAddTimeSlotModalOpen, setIsAddTimeSlotModalOpen] = useState(false);
+    const [isEditTicketModalOpen, setIsEditTicketModalOpen] = useState(false);
 
 
     async function fetchTicketDetails() {
@@ -117,6 +119,7 @@ const TicketPage: React.FC = observer(() => {
                                                         });
 
                                                         if (response.ok) {
+                                                            setTicket({ ...ticket, totalPrice: ticket.totalPrice - part.totalPrice });
                                                             setParts(parts.filter((p) => p.id !== part.id));
                                                         }
                                                     } catch (error) {
@@ -161,6 +164,7 @@ const TicketPage: React.FC = observer(() => {
             <AddTimeSlotModal
                 open={isTimeSlotModalOpen}
                 onClose={() => setIsTimeSlotModalOpen(false)}
+                callback={fetchTicketDetails}
                 ticketId={id!}
             />
             <AddPartModal
