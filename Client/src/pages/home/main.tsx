@@ -6,6 +6,7 @@ import { API_URL } from '../../constants/consts';
 import CreateTicketModal from '../../components/modals/createTicket';
 import { Ticket, TicketModel } from '../../types/types';
 import ConfirmModal from '../../components/modals/confirmModal';
+import KebabMenu from '../../components/common/kebabMenu';
 
 const Main = observer(() => {
   const store = useContext(Context);
@@ -113,7 +114,7 @@ const Main = observer(() => {
           {isLoading ? (
             <p className="text-lg text-gray-500">Loading...</p>
           ) : (
-            <div className="overflow-x-auto w-full">
+            <div className="w-full">
               <table className="table-auto w-full bg-white shadow-md rounded-lg">
                 <thead>
                   <tr className="bg-gray-200">
@@ -131,23 +132,23 @@ const Main = observer(() => {
                       <td className="border px-4 py-2">{ticket.model}</td>
                       <td className="border px-4 py-2">{ticket.totalPrice}</td>
                       <td className="border px-4 py-2">{ticket.status}</td>
-                      <td className="border px-4 py-2 flex space-x-2 justify-between">
-                        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded transition duration-300"
-                          onClick={() => navigate(`/ticket/${ticket.id}`)}
-                        >
-                          View
-                        </button>
-                        <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-3 rounded transition duration-300"
-                          onClick={
-                            () => {
+                      <KebabMenu options={
+                        [
+                          {
+                            name: 'View',
+                            callback: () => navigate(`/ticket/${ticket.id}`)
+                          },
+                          {
+                            name: 'Delete',
+                            callback: () => {
                               setSelectedTicketId(ticket.id);
                               setIsConfirmModalOpen(true);
                             }
                           }
-                        >
-                          Delete
-                        </button>
-                      </td>
+                        ]
+                      }
+                      />
+
                     </tr>
                   ))}
                 </tbody>

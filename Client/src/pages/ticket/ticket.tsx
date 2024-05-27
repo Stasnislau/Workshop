@@ -6,19 +6,48 @@ import AddPartModal from '../../components/modals/addPartModal';
 import { Ticket, Part, TimeSlot } from '../../types/types';
 import { observer } from 'mobx-react-lite';
 import { Context } from '../../main';
+import KebabMenu from '../../components/common/kebabMenu';
 
 const TicketPage: React.FC = observer(() => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const store = useContext(Context);
 
-    const [ticket, setTicket] = useState<Ticket | null>(null);
+    const [ticket, setTicket] = useState<Ticket>({
+        id: 0,
+        brand: '',
+        model: '',
+        registrationId: '',
+        description: '',
+        totalPrice: 0,
+        status: '',
+        timeSlots: [],
+    });
     const [parts, setParts] = useState<Part[]>([]);
     const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
-    const [isTimeSlotModalOpen, setIsTimeSlotModalOpen] = useState(false);
     const [isPartModalOpen, setIsPartModalOpen] = useState(false);
     const [isAddTimeSlotModalOpen, setIsAddTimeSlotModalOpen] = useState(false);
     const [isEditTicketModalOpen, setIsEditTicketModalOpen] = useState(false);
+
+    const onDelete = async (part: Part) => {
+        try {
+            const response = await fetch(`${API_URL}/part/delete/${part.id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    "Authorization": `Bearer ${localStorage.getItem("authToken")}`,
+                },
+                credentials: 'include',
+            });
+
+            if (response.ok) {
+                setTicket({ ...ticket, totalPrice: ticket.totalPrice - part.totalPrice });
+                setParts(parts.filter((p) => p.id !== part.id));
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
 
     async function fetchTicketDetails() {
@@ -74,7 +103,7 @@ const TicketPage: React.FC = observer(() => {
                             <div className="flex space-x-4 mb-4">
                                 <button
                                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                                    onClick={() => setIsTimeSlotModalOpen(true)}
+                                    onClick={() => setIsAddTimeSlotModalOpen(true)}
                                 >
                                     Add Time slots
                                 </button>
@@ -105,30 +134,18 @@ const TicketPage: React.FC = observer(() => {
                                             <td className="py-2 px-4 border-b">{part.price}</td>
                                             <td className="py-2 px-4 border-b">{part.quantity}</td>
                                             <td className='py-2 px-4 border-b'>{part.totalPrice}</td>
-                                            <button
-                                                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                                                onClick={async () => {
-                                                    try {
-                                                        const response = await fetch(`${API_URL}/part/delete/${part.id}`, {
-                                                            method: 'DELETE',
-                                                            headers: {
-                                                                'Content-Type': 'application/json',
-                                                                "Authorization": `Bearer ${localStorage.getItem("authToken")}`,
-                                                            },
-                                                            credentials: 'include',
-                                                        });
-
-                                                        if (response.ok) {
-                                                            setTicket({ ...ticket, totalPrice: ticket.totalPrice - part.totalPrice });
-                                                            setParts(parts.filter((p) => p.id !== part.id));
-                                                        }
-                                                    } catch (error) {
-                                                        console.error(error);
+                                            <KebabMenu options={
+                                                [
+                                                    {
+                                                        name: "Delete",
+                                                        callback: () => onDelete(part)
+                                                    },
+                                                    {
+                                                        name: "Edit",
+                                                        callback: () => { console.log("Edit") }
                                                     }
-                                                }}
-                                            >
-                                                Delete
-                                            </button>
+                                                ]
+                                            } />
                                         </tr>
                                     ))}
                                 </tbody>
@@ -162,8 +179,8 @@ const TicketPage: React.FC = observer(() => {
             )
             }
             <AddTimeSlotModal
-                open={isTimeSlotModalOpen}
-                onClose={() => setIsTimeSlotModalOpen(false)}
+                open={isAddTimeSlotModalOpen}
+                onClose={() => setIsAddTimeSlotModalOpen(false)}
                 callback={fetchTicketDetails}
                 ticketId={id!}
             />
@@ -173,6 +190,9 @@ const TicketPage: React.FC = observer(() => {
                 ticketId={id!}
                 callback={fetchTicketDetails}
             />
+
+
+
         </div >
     );
 });
