@@ -39,8 +39,8 @@ namespace Controllers
             {
                 throw;
             }
-
         }
+
 
         [HttpGet("all")]
         public async Task<IActionResult> GetAllTicketsForUser()
@@ -83,6 +83,28 @@ namespace Controllers
                 }
                 return BadRequest(result.Errors);
 
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        [HttpPut("update/{id}")]
+        public async Task<IActionResult> UpdateTicket(int id, [FromBody] Ticket newTicket)
+        {
+            try
+            {
+                var result = await _ticketService.UpdateTicketAsync(id, newTicket);
+                if (result.Succeeded)
+                {
+                    return Ok(new
+                    {
+                        Success = true,
+                        Message = "Ticket has been updated"
+                    });
+                }
+                return BadRequest(result.Errors);
             }
             catch (Exception)
             {

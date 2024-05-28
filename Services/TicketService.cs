@@ -78,7 +78,12 @@ namespace Services
                 ticket.RegistrationId = newTicket.RegistrationId;
                 ticket.Status = newTicket.Status;
 
-                return await _context.SaveChangesAsync() > 0 ? IdentityResult.Success : IdentityResult.Failed();
+                var result = await _context.SaveChangesAsync() > 0 ? IdentityResult.Success : IdentityResult.Failed();
+                if (!result.Succeeded)
+                {
+                    throw new CustomBadRequest("Failed to update ticket");
+                }
+                return RecalculateTotalPrice(ticketId).Result ? IdentityResult.Success : IdentityResult.Failed();
 
             }
 
@@ -103,24 +108,31 @@ namespace Services
         public async Task<bool> RecalculateTotalPrice(int ticketId)
         {
             var ticket = await _context.Tickets.FirstOrDefaultAsync(t => t.Id == ticketId);
+            var parts = await _context.Parts.Where(p => p.TicketId == ticketId).ToListAsync();
+            var timeSlots = await _context.TimeSlots.Where(ts => ts.TicketId == ticketId).ToListAsync();
             if (ticket != null)
             {
-                ticket.TotalPrice = 0;
-                foreach (var part in ticket.Parts)
+                decimal totalPrice = 0;
+                if (parts != null && parts.Count > 0)
                 {
-                    ticket.TotalPrice += part.TotalPrice;
+                    foreach (var part in parts)
+                    {
+                        totalPrice += part.TotalPrice; 
+                    }
                 }
-                if (ticket.TimeSlots != null && ticket.TimeSlots.Count > 0)
+                if (timeSlots != null && timeSlots.Count > 0)
                 {
-                    foreach (var timeSlot in ticket.TimeSlots)
+                    foreach (var timeSlot in timeSlots)
                     {
                         var employee = await _userManager.FindByIdAsync(timeSlot.UserId);
                         if (employee != null)
                         {
-                            ticket.TotalPrice += employee.HourlyRate * (timeSlot.EndTime - timeSlot.StartTime).Hours;
+                            totalPrice += employee.HourlyRate * (timeSlot.EndTime - timeSlot.StartTime).Hours;
                         }
                     }
                 }
+                Console.WriteLine(totalPrice);
+                ticket.TotalPrice = totalPrice;
                 await _context.SaveChangesAsync();
                 return true;
             }

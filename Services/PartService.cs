@@ -51,7 +51,7 @@ namespace Services
             {
                 return await _ticketService.RecalculateTotalPrice(ticketId) ? IdentityResult.Success : IdentityResult.Failed();
             }
-            return IdentityResult.Failed();
+            throw new CustomBadRequest("Failed to add part");
         }
 
         public async Task<IdentityResult> UpdatePartAsync(PartModel partModel, int partId)
@@ -63,31 +63,33 @@ namespace Services
                 part.Price = partModel.Price;
                 part.Quantity = partModel.Quantity;
                 part.TotalPrice = partModel.Price * partModel.Quantity;
-                bool Succeeded = await _context.SaveChangesAsync() > 0; // TODO: КАКАЯ ТО ХУЙНЯ С РЕКАЛЬКУЛЯЦИЕЙ ЦЕНЫ, ГОВОРИТ ЧТО UNDEFINED REFERENCE
+                bool Succeeded = await _context.SaveChangesAsync() > 0;
                 if (Succeeded)
                 {
                     return await _ticketService.RecalculateTotalPrice(part.TicketId) ? IdentityResult.Success : IdentityResult.Failed();
                 }
             }
-            return IdentityResult.Failed();
+            throw new CustomBadRequest("Failed to update part");
         }
 
         public async Task<IdentityResult> DeletePartAsync(int partId)
         {
             var part = await _context.Parts.Where(p => p.Id == partId).FirstOrDefaultAsync();
-            int ticketId = part.TicketId;
-            if (part != null)
+            if (part == null)
             {
-                _context.Parts.Remove(part);
-
-                bool Succeeded = await _context.SaveChangesAsync() > 0;
-
-                if (Succeeded)
-                {
-                    return await _ticketService.RecalculateTotalPrice(ticketId) ? IdentityResult.Success : IdentityResult.Failed();
-                }
+                throw new CustomBadRequest("Part not found");
             }
-            return IdentityResult.Failed();
+            int ticketId = part.TicketId;
+            _context.Parts.Remove(part);
+
+            bool Succeeded = await _context.SaveChangesAsync() > 0;
+
+            if (Succeeded)
+            {
+                return await _ticketService.RecalculateTotalPrice(ticketId) ? IdentityResult.Success : IdentityResult.Failed();
+            }
+
+            throw new CustomBadRequest("Failed to delete part");
         }
 
     }
