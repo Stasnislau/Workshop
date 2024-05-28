@@ -40,7 +40,9 @@ const Schedule = ({
                     ))}
                 </div>
                 <div className="absolute inset-0 flex items-center justify-center">
-                    <h2 className="text-2xl text-black-400">No tickets are assigned to you</h2>
+                    <h2 className="text-2xl text-black-400">
+                        You have nothing scheduled
+                    </h2>
                 </div>
             </div>
         )

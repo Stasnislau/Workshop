@@ -1,3 +1,4 @@
+using database;
 using database.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -15,11 +16,14 @@ namespace Controllers
     {
         private readonly UserService _userService;
         private readonly UserManager<User> _userManager;
+        private readonly ApplicationDbContext _context;
 
-        public UserController(UserService userService, UserManager<User> userManager)
+
+        public UserController(UserService userService, UserManager<User> userManager, ApplicationDbContext context)
         {
             _userService = userService;
             _userManager = userManager;
+            _context = context;
         }
 
         [HttpGet("specific")]
@@ -27,12 +31,15 @@ namespace Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = await _userService.GetUserByIdAsync(userId);
+            var timeSlots = _context.TimeSlots.Where(ts => ts.UserId == userId).ToList();
             if (user != null)
             {
-                return Ok(new UserInfoResponse{
+                return Ok(new UserInfoResponse
+                {
                     Username = user.UserName,
                     HourlyRate = user.HourlyRate,
-                    Id = user.Id
+                    Id = user.Id,
+                    TimeSlots = timeSlots.ToArray()
                 });
             }
             throw new CustomBadRequest("User not found");
@@ -46,7 +53,8 @@ namespace Controllers
             if (result.Succeeded)
             {
                 return Ok(
-                    new {
+                    new
+                    {
                         Success = true,
                         Message = "Password has been changed"
                     }

@@ -15,12 +15,13 @@ const AddPartModal: React.FC<AddPartModalProps> = ({ open, onClose, ticketId, ca
     const modalRef = useRef<HTMLDivElement>(null);
     const [part, setPart] = useState<PartModel>({
         name: '',
-        price: 0,
+        price: 1,
         quantity: 1,
     });
     const [error, setError] = useState('');
 
     useClickOutside(modalRef, onClose);
+    if (!open) return null;
 
     const handleAddPart = async () => {
         if (!part.name || !part.price || !part.quantity) {
@@ -44,6 +45,7 @@ const AddPartModal: React.FC<AddPartModalProps> = ({ open, onClose, ticketId, ca
 
             if (response.ok) {
                 await callback();
+                setPart({ name: '', price: 1, quantity: 1 });
                 onClose();
             } else {
                 setError('Failed to add part');
@@ -54,7 +56,7 @@ const AddPartModal: React.FC<AddPartModalProps> = ({ open, onClose, ticketId, ca
         }
     };
 
-    if (!open) return null;
+
 
     return (
         <AnimatePresence>

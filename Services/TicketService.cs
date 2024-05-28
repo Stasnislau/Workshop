@@ -70,6 +70,7 @@ namespace Services
         public async Task<IdentityResult> UpdateTicketAsync(int ticketId, Ticket newTicket)
         {
             var ticket = await _context.Tickets.FirstOrDefaultAsync(t => t.Id == ticketId);
+            Console.WriteLine(newTicket.Description);
             if (ticket != null)
             {
                 ticket.Description = newTicket.Description;
@@ -87,7 +88,7 @@ namespace Services
 
             }
 
-            return IdentityResult.Failed();
+            throw new CustomBadRequest("Ticket not found");
         }
 
         public async Task<IdentityResult> DeleteTicketAsync(int ticketId)
@@ -102,7 +103,7 @@ namespace Services
                     _context.TimeSlots.RemoveRange(ticket.TimeSlots);
                 return await _context.SaveChangesAsync() > 0 ? IdentityResult.Success : IdentityResult.Failed();
             }
-            return IdentityResult.Failed();
+            throw new CustomBadRequest("Ticket not found");
         }
 
         public async Task<bool> RecalculateTotalPrice(int ticketId)

@@ -7,7 +7,7 @@ interface AddTimeSlotModalProps {
     open: boolean;
     onClose: () => void;
     ticketId: string;
-    callback?: () => void;
+    callback: () => void;
 }
 
 const AddTimeSlotModal: React.FC<AddTimeSlotModalProps> = ({ open, onClose, ticketId, callback }) => {
@@ -18,33 +18,34 @@ const AddTimeSlotModal: React.FC<AddTimeSlotModalProps> = ({ open, onClose, tick
     useClickOutside(modalRef, onClose);
 
     const handleAddTimeslot = async () => {
-        if (!timeslot.startDate || !timeslot.endDate || !timeslot.startHour || !timeslot.endHour) {
+        if (!timeslot.startDate || !timeslot.startHour || !timeslot.endHour) {
             setError('Please fill all the fields');
             return;
         }
 
         const startTime = new Date(timeslot.startDate);
         startTime.setHours(parseInt(timeslot.startHour), 0, 0, 0);
-        const endTime = new Date(timeslot.endDate);
+        const endTime = new Date(timeslot.startDate);
         endTime.setHours(parseInt(timeslot.endHour), 0, 0, 0);
         const now = new Date();
 
-        if (startTime <= now || endTime <= now || startTime >= endTime) {
+        if (startTime <= now || startTime >= endTime) {
             setError('Invalid times: times must be in the future and end time must be after start time');
             return;
         }
 
         try {
-            const response = await fetch(`${API_URL}/timeslot`, {
+            const response = await fetch(`${API_URL}/timeslot/add/${ticketId}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     "Authorization": `Bearer ${localStorage.getItem("authToken")}`,
                 },
-                body: JSON.stringify({ start: startTime.toISOString(), end: endTime.toISOString(), ticketId }),
+                body: JSON.stringify({ StartTime: startTime.toISOString(), EndTime: endTime.toISOString(), ticketId }),
             });
 
             if (response.ok) {
+                callback();
                 onClose();
             } else {
                 setError('Failed to add timeslot');
@@ -75,9 +76,9 @@ const AddTimeSlotModal: React.FC<AddTimeSlotModalProps> = ({ open, onClose, tick
                                     className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     type="date"
                                     required
-                                    placeholder="Start Date"
+                                    placeholder="Date"
                                     value={timeslot.startDate}
-                                    onChange={(e) => setTimeslot({ ...timeslot, startDate: e.target.value })}
+                                    onChange={(e) => setTimeslot({ ...timeslot, startDate: e.target.value, endDate: e.target.value})}
                                 />
                                 <input
                                     className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -88,14 +89,6 @@ const AddTimeSlotModal: React.FC<AddTimeSlotModalProps> = ({ open, onClose, tick
                                     placeholder="Start Hour"
                                     value={timeslot.startHour}
                                     onChange={(e) => setTimeslot({ ...timeslot, startHour: e.target.value })}
-                                />
-                                <input
-                                    className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    type="date"
-                                    required
-                                    placeholder="End Date"
-                                    value={timeslot.endDate}
-                                    onChange={(e) => setTimeslot({ ...timeslot, endDate: e.target.value })}
                                 />
                                 <input
                                     className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
