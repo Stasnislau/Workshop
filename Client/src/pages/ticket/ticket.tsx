@@ -74,6 +74,25 @@ const TicketPage: React.FC = observer(() => {
         }
     };
 
+    async function deleteTimeSlot(id: number) {
+        try {
+            const response = await fetch(`${API_URL}/timeslot/delete/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    "Authorization": `Bearer ${localStorage.getItem("authToken")}`,
+                },
+                credentials: 'include',
+            });
+
+            if (response.ok) {
+                setTimeSlots(timeSlots.filter((slot) => slot.id !== id));
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
 
     async function fetchTicketDetails() {
         try {
@@ -173,10 +192,6 @@ const TicketPage: React.FC = observer(() => {
                                                 <KebabMenu options={
                                                     [
                                                         {
-                                                            name: "Edit",
-                                                            callback: () => { console.log("Edit") }
-                                                        },
-                                                        {
                                                             name: "Delete",
                                                             callback: () => onDelete(part)
                                                         },
@@ -219,7 +234,7 @@ const TicketPage: React.FC = observer(() => {
                                                             },
                                                             {
                                                                 name: "Delete",
-                                                                callback: () => { console.log("Delete") }
+                                                                callback: () => deleteTimeSlot(slot.id)
                                                             },
                                                         ]
                                                     } />
@@ -234,25 +249,30 @@ const TicketPage: React.FC = observer(() => {
 
             )
             }
-            <AddTimeSlotModal
-                open={isAddTimeSlotModalOpen}
-                onClose={() => setIsAddTimeSlotModalOpen(false)}
-                callback={fetchTicketDetails}
-                ticketId={id!}
-            />
-            <AddPartModal
-                open={isPartModalOpen}
-                onClose={() => setIsPartModalOpen(false)}
-                ticketId={id!}
-                callback={fetchTicketDetails}
-            />
-
-            <EditTicketModal
-                open={isEditTicketModalOpen}
-                onClose={() => setIsEditTicketModalOpen(false)}
-                ticket={ticket}
-                callback={editTicket}
-            />
+            {isAddTimeSlotModalOpen &&
+                <AddTimeSlotModal
+                    open={isAddTimeSlotModalOpen}
+                    onClose={() => setIsAddTimeSlotModalOpen(false)}
+                    callback={fetchTicketDetails}
+                    ticketId={id!}
+                />
+            }
+            {isPartModalOpen &&
+                <AddPartModal
+                    open={isPartModalOpen}
+                    onClose={() => setIsPartModalOpen(false)}
+                    ticketId={id!}
+                    callback={fetchTicketDetails}
+                />
+            }
+            {isEditTicketModalOpen &&
+                <EditTicketModal
+                    open={isEditTicketModalOpen}
+                    onClose={() => setIsEditTicketModalOpen(false)}
+                    ticket={ticket}
+                    callback={editTicket}
+                />
+            }
         </div >
     );
 });

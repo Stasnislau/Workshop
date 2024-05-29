@@ -71,20 +71,6 @@ namespace Controllers
             }
         }
 
-        [HttpPut("update/{id}")]
-        public async Task<IActionResult> UpdateTimeSlot([FromBody] TimeSlotModel timeSlotModel, int id)
-        {
-            try
-            {
-                var timeSlot = await _timeSlotService.UpdateTimeSlotAsync(timeSlotModel, id);
-                return Ok(timeSlot);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteTimeSlot(int id)
         {

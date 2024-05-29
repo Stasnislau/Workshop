@@ -42,19 +42,29 @@ namespace Controllers
         }
 
 
-        [HttpGet("all")]
+        [HttpGet("user/all")]
         public async Task<IActionResult> GetAllTicketsForUser()
         {
             try
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 var tickets = new List<Ticket>();
-                if (User.IsInRole("Admin"))
-                {
-                    tickets = await _ticketService.GetAllTicketsAsync();
-                    return Ok(tickets);
-                }
                 tickets = await _ticketService.GetTicketsByUserIdAsync(userId);
+                return Ok(tickets);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllTickets()
+        {
+            try
+            {
+                var tickets = new List<Ticket>();
+                tickets = await _ticketService.GetAllTicketsAsync();
                 return Ok(tickets);
             }
             catch (Exception)
@@ -68,7 +78,6 @@ namespace Controllers
         {
             try
             {
-                Console.WriteLine("Creating ticket");
                 string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 var result = await _ticketService.CreateTicketAsync(ticket, userId);
                 if (result.Succeeded)
@@ -91,7 +100,9 @@ namespace Controllers
         }
 
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> UpdateTicket(int id, [FromBody] Ticket newTicket)
+        public async Task<IActionResult> UpdateTicket(int id,
+
+         [FromBody] Ticket newTicket)
         {
             try
             {

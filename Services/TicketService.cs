@@ -70,14 +70,17 @@ namespace Services
         public async Task<IdentityResult> UpdateTicketAsync(int ticketId, Ticket newTicket)
         {
             var ticket = await _context.Tickets.FirstOrDefaultAsync(t => t.Id == ticketId);
-            Console.WriteLine(newTicket.Description);
             if (ticket != null)
             {
-                ticket.Description = newTicket.Description;
-                ticket.Model = newTicket.Model;
-                ticket.Brand = newTicket.Brand;
-                ticket.RegistrationId = newTicket.RegistrationId;
-                ticket.Status = newTicket.Status;
+                _context.Tickets.Update(ticket).CurrentValues.SetValues(new
+                {
+                    Brand = newTicket.Brand,
+                    Model = newTicket.Model,
+                    RegistrationId = newTicket.RegistrationId,
+                    Description = newTicket.Description,
+                    Status = newTicket.Status
+                }
+                );
 
                 var result = await _context.SaveChangesAsync() > 0 ? IdentityResult.Success : IdentityResult.Failed();
                 if (!result.Succeeded)
@@ -118,7 +121,7 @@ namespace Services
                 {
                     foreach (var part in parts)
                     {
-                        totalPrice += part.TotalPrice; 
+                        totalPrice += part.TotalPrice;
                     }
                 }
                 if (timeSlots != null && timeSlots.Count > 0)
@@ -132,7 +135,6 @@ namespace Services
                         }
                     }
                 }
-                Console.WriteLine(totalPrice);
                 ticket.TotalPrice = totalPrice;
                 await _context.SaveChangesAsync();
                 return true;

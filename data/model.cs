@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 
@@ -34,12 +35,9 @@ namespace database.Models
         public string Status { get; set; } = "Created";
 
 
-
         public List<User> Users { get; set; } = new List<User>();
-
-
-        public List<TimeSlot> TimeSlots { get; set; } = null!;
-
+         
+        public List<TimeSlot> TimeSlots { get; set; } = new List<TimeSlot>();
         public List<Part> Parts { get; set; } = new List<Part>();
 
 
