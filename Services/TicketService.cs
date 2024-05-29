@@ -72,16 +72,11 @@ namespace Services
             var ticket = await _context.Tickets.FirstOrDefaultAsync(t => t.Id == ticketId);
             if (ticket != null)
             {
-                _context.Tickets.Update(ticket).CurrentValues.SetValues(new
-                {
-                    Brand = newTicket.Brand,
-                    Model = newTicket.Model,
-                    RegistrationId = newTicket.RegistrationId,
-                    Description = newTicket.Description,
-                    Status = newTicket.Status
-                }
-                );
-
+                ticket.Brand = newTicket.Brand;
+                ticket.Model = newTicket.Model;
+                ticket.RegistrationId = newTicket.RegistrationId;
+                ticket.Description = newTicket.Description;
+                ticket.Status = newTicket.Status;
                 var result = await _context.SaveChangesAsync() > 0 ? IdentityResult.Success : IdentityResult.Failed();
                 if (!result.Succeeded)
                 {

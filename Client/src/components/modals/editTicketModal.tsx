@@ -36,7 +36,7 @@ const EditTicketModal: React.FC<EditTicketModalProps> = ({ open, callback, onClo
             setError('Please fill all the fields');
             return;
         }
-        callback(ticket, setError);
+        callback(currentTicket, setError);
     };
 
     if (!open) return null;

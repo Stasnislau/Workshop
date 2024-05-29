@@ -38,11 +38,13 @@ const TicketPage: React.FC = observer(() => {
                     "Authorization": `Bearer ${localStorage.getItem("authToken")}`,
                 },
                 credentials: 'include',
-                body: JSON.stringify({ ...ticket }),
+                body: JSON.stringify({ ...ticket, timeSlots: [], parts: [] }),
             });
 
             if (response.ok) {
                 setTicket(ticket);
+                setError('');
+                setIsEditTicketModalOpen(false);
             } else {
                 setError('Failed to update ticket');
             }

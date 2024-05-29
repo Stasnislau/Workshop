@@ -87,7 +87,6 @@ namespace Services
                 var userId = timeSlot.UserId;
                 var ticket  = await _context.Tickets.Where(t => t.Id == timeSlot.TicketId).Include(t => t.Users).FirstOrDefaultAsync();
                 var employeeTimeSlotsForThisTicket = await _context.TimeSlots.Where(ts => ts.UserId == userId && ts.TicketId == timeSlot.TicketId).ToListAsync();
-                Console.WriteLine(employeeTimeSlotsForThisTicket.Count);
                 if (employeeTimeSlotsForThisTicket.Count == 1)
                 {
                     ticket.Users.Remove(await _context.Users.Where(u => u.Id == userId).FirstOrDefaultAsync());
