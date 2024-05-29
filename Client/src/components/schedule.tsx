@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TimeSlot } from '../types/types';
-import { addDays, startOfWeek, format, parseISO, endOfDay, isAfter, startOfDay } from 'date-fns';
+import { addDays, startOfWeek, format, parseISO, endOfDay, isAfter, startOfDay, isBefore } from 'date-fns';
+import { isEqual } from 'date-fns/fp';
 
 const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday',];
 
@@ -66,11 +67,13 @@ const Schedule = ({
                         <div key={hour} className="text-right pr-2">{hour}:00</div>
                         {daysOfWeek.map((_, dayIndex) => {
                             const day = addDays(currentWeek, dayIndex);
+                            const slotHour = new Date(day).setHours(hour);
                             const startOfDayHour = startOfDay(day);
                             const endOfDayHour = endOfDay(day);
                             const timeSlot = timeSlots.find(timeSlot => {
                                 const startTime = parseISO(timeSlot.startTime);
-                                return isAfter(startTime, startOfDayHour) && isAfter(endOfDayHour, parseISO(timeSlot.endTime));
+                                const endTime = parseISO(timeSlot.endTime);
+                                return isAfter(startTime, startOfDayHour) && isBefore(endTime, endOfDayHour) && (isAfter(slotHour, startTime) || isEqual(startTime, slotHour) ) && isBefore(slotHour, endTime) 
                             });
 
                             if (timeSlot) {
