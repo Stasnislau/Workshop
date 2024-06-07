@@ -57,39 +57,54 @@ const EditTicketModal: React.FC<EditTicketModalProps> = ({ open, callback, onClo
                                 <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                                     <h3 className="text-lg leading-6 font-medium text-gray-900">Edit Ticket</h3>
                                     <div className="mt-2">
+                                        <span
+                                            className="mt-2 text-sm font-medium text-gray-700"
+                                        >Registration ID</span>
                                         <input
-                                            className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            className="w-full  px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                             type="text"
                                             required
                                             placeholder="Brand"
                                             value={currentTicket.brand}
                                             onChange={(e) => setCurrentTicket({ ...currentTicket, brand: e.target.value })}
                                         />
+                                        <span
+                                            className=" mt-2 text-sm font-medium text-gray-700"
+                                        >Model</span>
                                         <input
-                                            className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            className="w-full  px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                             type="text"
                                             required
                                             placeholder="Model"
                                             value={currentTicket.model}
                                             onChange={(e) => setCurrentTicket({ ...currentTicket, model: e.target.value })}
                                         />
+                                        <span
+                                            className="mt-2 text-sm font-medium text-gray-700"
+                                        >Registration ID</span>
                                         <input
-                                            className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            className="w-full  px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                             type="text"
                                             required
                                             placeholder="Registration ID"
                                             value={currentTicket.registrationId}
                                             onChange={(e) => setCurrentTicket({ ...currentTicket, registrationId: e.target.value })}
                                         />
-                                        <select className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        <span
+                                            className="mt-2 text-sm font-medium text-gray-700"
+                                        >Status</span>
+                                        <select className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                             value={currentTicket.status}
                                             onChange={(e) => setCurrentTicket({ ...currentTicket, status: e.target.value })}>
                                             <option value="created">Created</option>
                                             <option value="In progress">In Progress</option>
                                             <option value="Done">Done</option>
                                         </select>
+                                        <span
+                                            className="mt-2 text-sm font-medium text-gray-700"
+                                        >Description</span>
                                         <textarea
-                                            className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                             placeholder="Description"
                                             required
                                             value={currentTicket.description}

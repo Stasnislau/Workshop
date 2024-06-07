@@ -231,10 +231,6 @@ const TicketPage: React.FC = observer(() => {
                                                     <KebabMenu options={
                                                         [
                                                             {
-                                                                name: "Edit",
-                                                                callback: () => { console.log("Edit") }
-                                                            },
-                                                            {
                                                                 name: "Delete",
                                                                 callback: () => deleteTimeSlot(slot.id)
                                                             },
